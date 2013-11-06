@@ -58,6 +58,7 @@ GEM
     figaro (0.7.0)
       bundler (~> 1.0)
       rails (>= 3, < 5)
+    git (1.2.6)
     haml (4.0.3)
       tilt
     haml-rails (0.4)
@@ -160,6 +161,7 @@ DEPENDENCIES
   coffee-rails (~> 4.0.0)
   devise
   figaro
+  git
   haml-rails
   html2haml
   hub

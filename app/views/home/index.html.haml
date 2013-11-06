@@ -1,4 +1,48 @@
-%h3 Home
-- @users.each do |user|
-  %p
-    User: #{link_to user.name, user}
+.row-fluid
+  .span6
+    %h1= current_user.name
+    %table.table
+      %thead
+        %tr
+          %th Aufgabe
+          %th
+          %th Zeichen
+      %tbody
+        - current_user.tasks.each do |task|
+          %tr
+            %td=task.i
+            %td
+              - if task.success?
+                %i.icon.icon-ok-sign
+              - else
+                %i.icon.icon-minus-sign
+            %td=task.length
+  .span6
+    .well
+      %h3 Highscore
+      %table.table
+        %thead
+          %tr
+            %th User
+            %th Punkte
+            %th gelöst
+        %tbody
+          - @stats[:rows].each do |row|
+            %tr
+              %td= row[:user].name
+              %td= row[:total]
+              %td= row[:solved]
+
+
+    .well
+      %h3 Tasks
+      %table.table
+        %thead
+          %tr
+            %th Task
+            %th Bester
+        %tbody
+          - @stats[:best].each_pair do |index, count|
+            %tr
+              %td= index
+              %td= count
