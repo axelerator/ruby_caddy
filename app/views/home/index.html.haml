@@ -8,15 +8,15 @@
           %th
           %th Zeichen
       %tbody
-        - current_user.tasks.each do |task|
+        - current_user.test_results.order(:test).each do |test_result|
           %tr
-            %td=task.i
+            %td= test_result.test
             %td
-              - if task.success?
+              - if test_result.size
                 %i.icon.icon-ok-sign
               - else
                 %i.icon.icon-minus-sign
-            %td=task.length
+            %td=test_result.size
   .span6
     .well
       %h3 Highscore
@@ -27,11 +27,11 @@
             %th Punkte
             %th gelöst
         %tbody
-          - @stats[:rows].each do |row|
+          - @highscore.each do |user|
             %tr
-              %td= row[:user].name
-              %td= row[:total]
-              %td= row[:solved]
+              %td= user.name
+              %td= user.score
+              %td= user.test_results.where("size is not null").count
 
 
     .well
@@ -41,8 +41,10 @@
           %tr
             %th Task
             %th Bester
+            %th Zeichen
         %tbody
-          - @stats[:best].each_pair do |index, count|
+          - @tasks.each do |test_result|
             %tr
-              %td= index
-              %td= count
+              %td= test_result.test
+              %td= test_result.user.name
+              %td= test_result.size
