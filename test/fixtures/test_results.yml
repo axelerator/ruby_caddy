@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  test: MyString
+  passed: false
+  size: 1
+  user_id: 
+
+two:
+  test: MyString
+  passed: false
+  size: 1
+  user_id: 

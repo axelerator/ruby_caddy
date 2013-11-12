@@ -5,17 +5,18 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
+  has_many :test_results, dependent: :destroy
+
   def clone
     FileUtils.rm_rf(path)
     FileUtils.mkdir_p(path)
-    g = Git.clone(git_uri, "#{id}", :path => self.class.root_path)
-    update_attribute(:current_revision, g.object('HEAD').sha)
+    Git.clone(git_uri, "#{id}", :path => self.class.root_path)
+    update_attribute(:current_revision, sha)
   end
 
   def pull
-    g = Git.open(path, :log => Rails.logger)
-    g.pull
-    update_attribute(:current_revision, g.object('HEAD').sha)
+    git(path).pull
+    update_attribute(:current_revision, sha)
   rescue ArgumentError
     clone
   end
@@ -28,53 +29,42 @@ class User < ActiveRecord::Base
     self.class.root_path + "/#{id}"
   end
 
-  def tasks
-    @tasks ||=[
-      Task.new(path,1) do
-        [
-          [ {'foo' => 1, 'bar' => 2} , { foo: 1, bar: 2}],
-          [ {'rum-' => 1, 'bum' => 2} , { :'rum-' =>  1, bum: 2}]
-        ]
-      end,
-
-
-      Task.new(path, 2) do
-        [
-          [1000, 21124],
-          [1000, 0]
-        ]
+  def test
+    transaction do
+      test_results.clear
+      erg = Bundler.with_clean_env do
+        `cd #{Rails.root.join("test_environment")} && bundle exec ruby -I#{path} ruby_golf_test.rb --nocolor`
+      end.split("\n").map do |line|
+        if !(matcher = /^ *([^:]+): (([0-9]+) characters|(FAILED|UNDEFINED))/.match(line)).nil?
+          test_results.create(test: matcher[1], size: matcher[3])
+        end
       end
-    ]
+      TestResult.update_scores
+      User.update_scores
+      reload # needed because of the way stats are updated
+      update_attribute(:tested_revision, sha)
+    end
   end
 
-  def self.mk_stats
-    best_tasks = {}
-    users = User.all.select {|u| u.git_uri.present?}
-    users.each do |user|
-      user.tasks.each do |task|
-        if task.success? && ( best_tasks[task.i] == nil || task.length < best_tasks[task.i] )
-          best_tasks[task.i] = task.length
-        end
-      end
-    end
+  def self.update_scores
+    update_all("score = (select sum(score) from test_results where user_id = users.id)")
+  end
 
-    stats = []
-    users.each do |u|
-      current_row = { tasks: {}, total: 0, user: u, solved: 0}
-      stats << current_row
-      u.tasks.each do |t|
-        task_info = {}
-        current_row[:tasks][t.i] = task_info
-        task_info[:points] = t.success? ? ((t.length.to_f / best_tasks[t.i]) * 1000).to_i : 0
-        current_row[:total] += task_info[:points]
-        if t.success?
-          current_row[:solved] += 1
-        end
-      end
+  private
+
+  def git(path)
+    tries = 0
+    begin
+      tries += 1
+      Git.open(path, :log => Rails.logger)
+    rescue ArgumentError => e
+      clone
+      tries == 1 ? retry : raise(e)
     end
-    { best: best_tasks,
-      rows: stats.sort_by!{|h| h[:total]}.reverse
-    }
+  end
+
+  def sha
+    git(path).object('HEAD').sha
   end
 
 end

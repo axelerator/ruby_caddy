@@ -11,7 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131112010151) do
+ActiveRecord::Schema.define(version: 20131112025602) do
+
+  create_table "test_results", force: true do |t|
+    t.string   "test",                   null: false
+    t.integer  "size"
+    t.integer  "score",      default: 0, null: false
+    t.integer  "user_id",                null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "test_results", ["user_id"], name: "index_test_results_on_user_id"
 
   create_table "users", force: true do |t|
     t.string   "email",                  default: "", null: false
@@ -30,6 +41,7 @@ ActiveRecord::Schema.define(version: 20131112010151) do
     t.string   "git_uri"
     t.string   "current_revision"
     t.string   "tested_revision"
+    t.integer  "score",                  default: 0,  null: false
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true
