@@ -16,6 +16,8 @@ class User < ActiveRecord::Base
     g = Git.open(path, :log => Rails.logger)
     g.pull
     update_attribute(:current_revision, g.object('HEAD').sha)
+  rescue ArgumentError
+    clone
   end
 
   def self.root_path
