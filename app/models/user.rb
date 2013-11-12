@@ -4,15 +4,18 @@ class User < ActiveRecord::Base
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
+
   def clone
     FileUtils.rm_rf(path)
     FileUtils.mkdir_p(path)
-    Git.clone(git_uri, "#{id}", :path => self.class.root_path)
+    g = Git.clone(git_uri, "#{id}", :path => self.class.root_path)
+    update_attribute(:current_revision, g.object('HEAD').sha)
   end
 
   def pull
     g = Git.open(path, :log => Rails.logger)
     g.pull
+    update_attribute(:current_revision, g.object('HEAD').sha)
   end
 
   def self.root_path
