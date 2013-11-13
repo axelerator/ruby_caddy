@@ -8,6 +8,7 @@ class User < ActiveRecord::Base
   has_many :test_results, dependent: :destroy
 
   def clone
+    return if git_uri.nil?
     FileUtils.rm_rf(path)
     FileUtils.mkdir_p(path)
     Git.clone(git_uri, "#{id}", :path => self.class.root_path)
@@ -15,6 +16,7 @@ class User < ActiveRecord::Base
   end
 
   def pull
+    return if git_uri.nil?
     git(path).pull
     update_attribute(:current_revision, sha)
   rescue ArgumentError
@@ -30,6 +32,7 @@ class User < ActiveRecord::Base
   end
 
   def test
+    return if git_uri.nil?
     pull
     transaction do
       test_results.clear
