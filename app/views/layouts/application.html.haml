@@ -7,6 +7,20 @@
     = yield :meta
     = stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true
     = javascript_include_tag "application", "data-turbolinks-track" => true
+    %script
+      var offset = 0;
+      var direction = 1;
+      function scroll() {
+      offset += direction * 5;
+      window.scrollTo(0, offset);
+      window.setTimeout(scroll, 100);
+      var left = (document.height - (window.pageYOffset + window.innerHeight) );
+      if (left < 10 || offset == 0) {
+      direction *= -1;
+      }
+      }
+      if (window.location.href.indexOf('scroll=true') !== -1) scroll();
+
     = csrf_meta_tags
   %body
     -# application layout styled for Twitter Bootstrap 2.3
@@ -22,3 +36,4 @@
               = render 'layouts/messages'
               = yield
           %footer
+
