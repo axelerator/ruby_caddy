@@ -1,5 +1,20 @@
-%h3 User
-%p
-  User: #{@user.name}
-%p
-  Email: #{@user.email if @user.email}
+.row-fluid
+  .span12
+    .well
+      %h3= @user.name
+      %table.table
+        %thead
+          %tr
+            %th Aufgabe
+            %th
+            %th Zeichen
+        %tbody
+          - @user.test_results.order(:test).each do |test_result|
+            %tr
+              %td= test_result.test
+              %td
+                - if test_result.size
+                  %i.icon.icon-ok-sign
+                - else
+                  %i.icon.icon-minus-sign
+              %td= test_result.size

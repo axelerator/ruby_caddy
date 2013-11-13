@@ -1,23 +1,5 @@
 .row-fluid
-  .span6
-    %h1= current_user.name
-    %table.table
-      %thead
-        %tr
-          %th Aufgabe
-          %th
-          %th Zeichen
-      %tbody
-        - current_user.test_results.order(:test).each do |test_result|
-          %tr
-            %td= test_result.test
-            %td
-              - if test_result.size
-                %i.icon.icon-ok-sign
-              - else
-                %i.icon.icon-minus-sign
-            %td=test_result.size
-  .span6
+  .span12
     .well
       %h3 Highscore
       %table.table
@@ -29,7 +11,7 @@
         %tbody
           - @highscore.each do |user|
             %tr
-              %td= user.name
+              %td= link_to user.name, user
               %td= user.score
               %td= user.solved
 
@@ -43,8 +25,8 @@
             %th Bester
             %th Zeichen
         %tbody
-          - @tasks.each do |test_result|
+          - @tasks.each do |test, results|
             %tr
-              %td= test_result.test
-              %td= test_result.user.name
-              %td= test_result.size
+              %td= test
+              %td= results.first.solved? ? link_to(results.first.user.name, results.first.user) : "-"
+              %td= results.first.solved? ? results.first.size : "-"
