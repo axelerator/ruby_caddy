@@ -15,4 +15,7 @@ namespace :ruby_caddy do
       sleep pause
     end
   end
+  task clean: :environment do
+    TestResult.destroy_all
+  end
 end
