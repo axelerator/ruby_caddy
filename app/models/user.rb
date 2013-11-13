@@ -30,6 +30,7 @@ class User < ActiveRecord::Base
   end
 
   def test
+    pull
     transaction do
       test_results.clear
       erg = Bundler.with_clean_env do
