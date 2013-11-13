@@ -33,9 +33,11 @@ class User < ActiveRecord::Base
     transaction do
       test_results.clear
       erg = Bundler.with_clean_env do
-        `cd #{Rails.root.join("test_environment")} && bundle exec ruby -I#{path} ruby_golf_test.rb --nocolor`
-      end.split("\n").map do |line|
-        if !(matcher = /^ *([^:]+): (([0-9]+) characters|(FAILED|UNDEFINED))/.match(line)).nil?
+        `cd #{Rails.root.join("test_environment")} && bundle exec ruby -KU -I#{path} ruby_golf_test.rb --nocolor`
+      end
+      puts erg
+      erg = erg.split("\n").map do |line|
+        if !(matcher = /^ *(Hole [0-9]+ \([^:]+\)): (([0-9]+) character\(s\)|(FAILED|UNDEFINED|there was an error counting your characters))/.match(line)).nil?
           test_results.create(test: matcher[1], size: matcher[3])
         end
       end
@@ -47,7 +49,12 @@ class User < ActiveRecord::Base
   end
 
   def self.update_scores
-    update_all("score = (select sum(score) from test_results where user_id = users.id)")
+    User.
+      where("(select count(*) from test_results where user_id = users.id) == 0").
+      update_all("score = 0")
+    User.
+      where("(select count(*) from test_results where user_id = users.id) > 0").
+      update_all("score = (select sum(score) from test_results where user_id = users.id)")
   end
 
   private
