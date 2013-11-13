@@ -1,32 +1,36 @@
-.row-fluid
-  .span12
-    .well
-      %h3 Highscore
-      %table.table
-        %thead
-          %tr
-            %th User
-            %th Punkte
-            %th gelöst
-        %tbody
-          - @highscore.each do |user|
-            %tr
-              %td= link_to user.name, user
-              %td= user.score
-              %td= user.solved
+%h3 Highscore
+%table.table
+  %thead
+    %tr
+      %th Team
+      %th Score
+      %th Solved Holes
+  %tbody
+    - @highscore.each do |user|
+      %tr
+        %td= link_to user.name || user.email, user
+        %td= user.score
+        %td= user.solved
 
-
-    .well
-      %h3 Tasks
-      %table.table
-        %thead
+%h3 Holes
+%table.table
+  %thead
+    %tr
+      %th Hole
+      %th Team
+      %th Spent Characters
+      %th Score
+  %tbody
+    - @holes.each do |test, results|
+      - results.each do |result|
+        - if result == results.first || result.solved?
           %tr
-            %th Task
-            %th Bester
-            %th Zeichen
-        %tbody
-          - @tasks.each do |test, results|
-            %tr
-              %td= test
-              %td= results.first.solved? ? link_to(results.first.user.name, results.first.user) : "-"
-              %td= results.first.solved? ? results.first.size : "-"
+            %td= test if result == results.first
+            - if result.solved?
+              %td= link_to(result.user.name || result.user.email, result.user)
+              %td= result.size
+              %td= result.score
+            - else
+              %td -
+              %td -
+              %td -

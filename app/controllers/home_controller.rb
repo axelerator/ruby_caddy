@@ -4,7 +4,7 @@ class HomeController < ApplicationController
 
   def index
     @highscore = User.order(score: :desc, solved: :desc, id: :asc)
-    @tasks = TestResult.all.group_by(&:test).map do |test, results|
+    @holes = TestResult.all.group_by(&:test).map do |test, results|
       [
         test,
         results.sort_by do |result|
