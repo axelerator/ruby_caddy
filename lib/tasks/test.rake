@@ -4,7 +4,11 @@ namespace :ruby_caddy do
     while true
       User.all.each do |user|
         puts "==================== #{user.name} = #{user.git_uri}"
-        user.test
+        begin
+          user.test
+        rescue => e
+          puts e
+        end
       end
       pause = (ENV["SLEEP"] || 60).to_i
       puts "==================== sleeping for #{pause} seconds"
