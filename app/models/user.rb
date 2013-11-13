@@ -49,12 +49,9 @@ class User < ActiveRecord::Base
   end
 
   def self.update_scores
-    User.
-      where("(select count(*) from test_results where user_id = users.id) == 0").
-      update_all("score = 0")
-    User.
-      where("(select count(*) from test_results where user_id = users.id) > 0").
-      update_all("score = (select sum(score) from test_results where user_id = users.id)")
+    User.update_all("solved = (select count(*) from test_results where user_id = users.id and size is not null)")
+    User.where("solved == 0").update_all("score = 0")
+    User.where("solved > 0").update_all("score = (select sum(score) from test_results where user_id = users.id)")
   end
 
   private
