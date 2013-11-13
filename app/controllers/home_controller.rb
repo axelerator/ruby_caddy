@@ -1,6 +1,9 @@
 class HomeController < ApplicationController
   before_filter :authenticate_user!
-  before_filter :make_them_give_an_uri
+  before_filter :make_them_give_an_uri, except: :info
+
+  def info
+  end
 
   def index
     @highscore = User.order(score: :desc, solved: :desc, id: :asc)
